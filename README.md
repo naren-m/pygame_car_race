@@ -1,6 +1,7 @@
 # PyGame: Car obsticale course
 
 Basic example on how to use pygame to create a game. 
+(Source code is copied from pythonprogramming.net)
 
 ## Game
 
