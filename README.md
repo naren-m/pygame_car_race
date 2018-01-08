@@ -2,6 +2,10 @@
 
 Basic example on how to use pygame to create a game. 
 
+## Game
+
+![Alt Race gif](car_race.gif)
+
 ## References
 
 - [Sentdex youtube playlist: Game Development in Python3 with PyGame](https://www.youtube.com/watch?list=PLQVvvaa0QuDdLkP8MrOXLe_rKuf6r80KO&v=ujOTNg17LjI)
