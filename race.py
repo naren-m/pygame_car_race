@@ -13,7 +13,7 @@ game_window_size = (display_width, display_height)
 white = (255, 255, 255)
 black = (0, 0, 0)
 
-gd = pygame.display.set_mode(game_window_size)
+SCREEN = pygame.display.set_mode(game_window_size)
 pygame.display.set_caption('test')
 clock = pygame.time.Clock()
 
@@ -21,102 +21,111 @@ car_img = pygame.image.load('Car.png')
 im = Image.open('Car.png')
 car_width, car_height = im.size
 
-def car(x,y):
-    # blit prepare the image to display in background and show once update
-    # is called
-    gd.blit(car_img, (x,y))
+class Game:
+    def __init__(self):
+        self.score = 0
+        self.playerx = display_width * 0.45
+        self.playery = display_height * 0.8
 
-def crash():
-    message_display('Crashed!!!')
+        self.FPS = 60
+        self.obstacle_startx = random.randrange(0, display_width)
+        self.obstacle_starty = -600
+        self.obstacle_speed = 10
+        self.obstacle_width = 100
+        self.obstacle_height = 100
+        self.score = 0
 
-def message_display(text):
-    large_text = pygame.font.Font('freesansbold.ttf', 115)
-    text_surface, text_rect = text_objects(text, large_text)
-    text_rect.center = (display_width/2, display_height/2)
-    gd.blit(text_surface, text_rect)
+    def draw_car(self, x ,y):
+        # blit prepare the image to display in background and show once update
+        # is called
+        SCREEN.blit(car_img, (x,y))
 
-    pygame.display.update()
-    time.sleep(2)
-    game_loop()
-
-def things_dodged(count):
-    font = pygame.font.SysFont(None, 25)
-    text = font.render("Dodged: "+str(count), True, black)
-    gd.blit(text,(0,0))
-
-def text_objects(text, font):
-    ts = font.render(text, True, black)
-    return ts, ts.get_rect()
-
-def things(thingx, thingy, thingw, thingh, color):
-    pygame.draw.rect(gd, color, [thingx, thingy, thingw, thingh])
-
-def game_loop():
-    x = display_width * 0.45
-    y = display_height * 0.8
-
-    game_exit = False
-    x_change = 0
-    thing_startx = random.randrange(0, display_width)
-    thing_starty = -600
-    thing_speed = 7
-    thing_width = 100
-    thing_height = 100
-
-    thing_count = 1
-
-    dodged = 0
-
-    while not game_exit:
-        for event in pygame.event.get():
-            # Condition to quit
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    x_change = -5
-                elif event.key == pygame.K_RIGHT:
-                    x_change = 5
-
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                    x_change = 0
-
-        x += x_change
-        gd.fill(white)
-
-        things(thing_startx, thing_starty, thing_width, thing_height, black)
-
-        thing_starty += thing_speed
-        car(x,y)
-        things_dodged(dodged)
-
-        if x > display_width - car_width or x < 0:
-            crash()
-
-        if thing_starty > display_height:
-            thing_starty = 0 - thing_height
-            thing_startx = random.randrange(0,display_width)
-            dodged += 1
-            thing_speed += 1
-            thing_width += (dodged * 1.2)
-
-
-        ####
-        if y < thing_starty+thing_height:
-            print('y crossover')
-
-            if x > thing_startx and x < thing_startx + thing_width or x+car_width > thing_startx and x + car_width < thing_startx+thing_width:
-                print('x crossover')
-                crash()
-        ####
+    def show_crash_msg(self):
+        def text_objects(text, font):
+            ts = font.render(text, True, black)
+            return ts, ts.get_rect()
+        
+        text = 'Crashed!!!'
+        large_text = pygame.font.Font('freesansbold.ttf', 115)
+        text_surface, text_rect = text_objects(text, large_text)
+        text_rect.center = (display_width/2, display_height/2)
+        SCREEN.blit(text_surface, text_rect)
 
         pygame.display.update()
-        clock.tick(60) # Frames per second
+        time.sleep(2)
+        self.game_loop()
 
-game_loop()
+    def things_dodged(self, count):
+        font = pygame.font.SysFont(None, 25)
+        text = font.render("Dodged: "+str(count), True, black)
+        SCREEN.blit(text,(0,0))
+
+
+
+    def draw_things(self, thingx, thingy, thingw, thingh, color):
+        pygame.draw.rect(SCREEN, color, [thingx, thingy, thingw, thingh])
+
+    def _is_crash(self):
+        if self.playerx  > display_width - car_width or self.playerx  < 0:
+            return True
+
+        if self.playery < self.obstacle_starty+self.obstacle_height:
+            if self.playerx  > self.obstacle_startx and self.playerx  < self.obstacle_startx + self.obstacle_width or self.playerx + car_width > self.obstacle_startx and self.playerx + car_width < self.obstacle_startx+self.obstacle_width:
+                return True
+
+        return False
+
+    def game_loop(self):
+        game_exit = False
+        x_change = 0
+
+        self.__init__()
+
+        while not game_exit:
+            for event in pygame.event.get():
+                # Condition to quit
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        x_change = -5
+                    elif event.key == pygame.K_RIGHT:
+                        x_change = 5
+
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                        x_change = 0
+
+            self.playerx += x_change
+            
+            SCREEN.fill(white)
+
+            self.draw_things(self.obstacle_startx, self.obstacle_starty, self.obstacle_width, self.obstacle_height, black)
+            self.draw_car(self.playerx,self.playery)
+            self.things_dodged(self.score)
+
+            self.obstacle_starty += self.obstacle_speed
+
+            if self.obstacle_starty > display_height:
+                self.obstacle_starty = 0 - self.obstacle_height
+                self.obstacle_startx = random.randrange(0,display_width)
+                self.score += 1
+                # to increase obstacle speed
+                self.obstacle_speed += 0.5
+                # to increase the width of obstacle
+                # self.obstacle_width += (self.score * 1.2)
+            
+            if self._is_crash():
+                self.show_crash_msg()
+
+            pygame.display.update()
+            clock.tick(self.FPS) # Frames per second
+
+
+g = Game()
+g.game_loop()
 pygame.quit()
 quit()
 
