@@ -99,7 +99,9 @@ class Game:
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                         self.playerx_displacement = 0
+            self.frame()
 
+    def frame(self):
             self.playerx += self.playerx_displacement
             
             SCREEN.fill(white)
