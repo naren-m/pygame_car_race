@@ -26,6 +26,9 @@ class Game:
         self.score = 0
         self.playerx = display_width * 0.45
         self.playery = display_height * 0.8
+        self.playerx_displacement = 0
+        self.PLAYER_LEFT_MOVE = 0
+        self.PLAYER_RIGHT_MOVE = 1
 
         self.FPS = 60
         self.obstacle_startx = random.randrange(0, display_width)
@@ -77,7 +80,6 @@ class Game:
 
     def game_loop(self):
         game_exit = False
-        x_change = 0
 
         self.__init__()
 
@@ -90,15 +92,15 @@ class Game:
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
-                        x_change = -5
+                        self.playerx_displacement = -5
                     elif event.key == pygame.K_RIGHT:
-                        x_change = 5
+                        self.playerx_displacement = 5
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                        x_change = 0
+                        self.playerx_displacement = 0
 
-            self.playerx += x_change
+            self.playerx += self.playerx_displacement
             
             SCREEN.fill(white)
 
@@ -119,6 +121,7 @@ class Game:
             
             if self._is_crash():
                 self.show_crash_msg()
+                self.__init__()
 
             pygame.display.update()
             clock.tick(self.FPS) # Frames per second
