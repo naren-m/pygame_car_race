@@ -29,6 +29,8 @@ class Game:
         self.playerx_displacement = 0
         self.PLAYER_LEFT_MOVE = 0
         self.PLAYER_RIGHT_MOVE = 1
+        self.VALID_ACTIONS = 2
+        self.actions = list([0, 0])
 
         self.FPS = 60
         self.obstacle_startx = random.randrange(0, display_width)
@@ -63,8 +65,6 @@ class Game:
         text = font.render("Dodged: "+str(count), True, black)
         SCREEN.blit(text,(0,0))
 
-
-
     def draw_things(self, thingx, thingy, thingw, thingh, color):
         pygame.draw.rect(SCREEN, color, [thingx, thingy, thingw, thingh])
 
@@ -77,7 +77,7 @@ class Game:
                 return True
 
         return False
-
+        
     def game_loop(self):
         game_exit = False
 
@@ -87,50 +87,60 @@ class Game:
             for event in pygame.event.get():
                 # Condition to quit
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    quit()
+                    # pygame.quit()
+                    # quit()
+                    game_exit = True
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
+                        # Move left
+                        self.actions[self.PLAYER_LEFT_MOVE] = 1
+                        self.actions[self.PLAYER_RIGHT_MOVE] = 0
                         self.playerx_displacement = -5
                     elif event.key == pygame.K_RIGHT:
+                        # Move right
+                        self.actions[self.PLAYER_LEFT_MOVE] = 0
+                        self.actions[self.PLAYER_RIGHT_MOVE] = 1
                         self.playerx_displacement = 5
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                        # Dont move
+                        self.actions[self.PLAYER_LEFT_MOVE] = 0
+                        self.actions[self.PLAYER_RIGHT_MOVE] = 0
                         self.playerx_displacement = 0
-            self.frame()
+            self.frame(1)
+        pygame.quit()
+        quit()
 
-    def frame(self):
-            self.playerx += self.playerx_displacement
-            
-            SCREEN.fill(white)
+    def frame(self, input_actions):
+        self.playerx += self.playerx_displacement
+        
+        SCREEN.fill(white)
 
-            self.draw_things(self.obstacle_startx, self.obstacle_starty, self.obstacle_width, self.obstacle_height, black)
-            self.draw_car(self.playerx,self.playery)
-            self.things_dodged(self.score)
+        self.draw_things(self.obstacle_startx, self.obstacle_starty, self.obstacle_width, self.obstacle_height, black)
+        self.draw_car(self.playerx,self.playery)
+        self.things_dodged(self.score)
 
-            self.obstacle_starty += self.obstacle_speed
+        self.obstacle_starty += self.obstacle_speed
 
-            if self.obstacle_starty > display_height:
-                self.obstacle_starty = 0 - self.obstacle_height
-                self.obstacle_startx = random.randrange(0,display_width)
-                self.score += 1
-                # to increase obstacle speed
-                self.obstacle_speed += 0.5
-                # to increase the width of obstacle
-                # self.obstacle_width += (self.score * 1.2)
-            
-            if self._is_crash():
-                self.show_crash_msg()
-                self.__init__()
+        if self.obstacle_starty > display_height:
+            self.obstacle_starty = 0 - self.obstacle_height
+            self.obstacle_startx = random.randrange(0,display_width)
+            self.score += 1
+            # to increase obstacle speed
+            self.obstacle_speed += 0.5
+            # to increase the width of obstacle
+            # self.obstacle_width += (self.score * 1.2)
+        
+        if self._is_crash():
+            self.show_crash_msg()
+            self.__init__()
 
-            pygame.display.update()
-            clock.tick(self.FPS) # Frames per second
+        pygame.display.update()
+        clock.tick(self.FPS) # Frames per second
 
 
 g = Game()
 g.game_loop()
-pygame.quit()
-quit()
 
